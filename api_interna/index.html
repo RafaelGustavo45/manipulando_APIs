@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Interna CID</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 300px;
+            text-align: center;
+        }
+        h1 { font-size: 24px; color: #333; }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box; /* Garante que o padding não quebre a largura */
+        }
+        button {
+            background-color: #7b22ee;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        button:hover { background-color: #5a18b1; }
+        #resultado {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+            background-color: #e7e7e7;
+            min-height: 20px;
+            word-wrap: break-word;
+        }
+        .error { color: red; background-color: #ffdada !important; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>API Interna</h1>
+    
+    <div class="form-group">
+        <label for="cid">CID:</label>
+        <input type="text" id="cid" placeholder="Ex: A00">
+    </div>
+
+    <div class="form-group">
+        <label for="language">Linguagem:</label>
+        <select id="language">
+            <option value="pt-br">Português (pt-br)</option>
+            <option value="en-us">Inglês (en-us)</option>
+            <option value="es-es">Espanhol (es-es)</option>
+        </select>
+    </div>
+
+    <button onclick="consultarAPI()">Enviar</button>
+
+    <div id="resultado">O resultado aparecerá aqui...</div>
+</div>
+
+<script>
+    async function consultarAPI() {
+        const cidInput = document.getElementById('cid').value.toUpperCase();
+        const langSelect = document.getElementById('language').value;
+        const divResultado = document.getElementById('resultado');
+
+        // Limpa o resultado anterior
+        divResultado.innerText = "Buscando...";
+        divResultado.classList.remove('error');
+
+        try {
+            // Chamada para o seu servidor Node.js na porta 5000
+            const url = `http://localhost:5000/api/cid?cod_cid=${cidInput}&language=${langSelect}`;
+            
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (response.ok) {
+                divResultado.innerHTML = `<strong>Nome:</strong> ${data.nome}`;
+            } else {
+                divResultado.classList.add('error');
+                divResultado.innerText = data.error || "Erro ao buscar CID.";
+            }
+
+        } catch (error) {
+            divResultado.classList.add('error');
+            divResultado.innerText = "Erro: Servidor API offline.";
+            console.error(error);
+        }
+    }
+</script>
+
+</body>
+</html>
