@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remover CID</title>
+    <style>
+        /* Estilo idêntico, mudando apenas a cor do botão para alerta */
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 300px; text-align: center; }
+        h1 { font-size: 24px; color: #333; }
+        .form-group { margin-bottom: 15px; text-align: left; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, select, button { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { background-color: #dc3545; color: white; border: none; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        button:hover { background-color: #c82333; }
+        #resultado { margin-top: 20px; padding: 10px; border-radius: 4px; background-color: #e7e7e7; min-height: 20px; word-wrap: break-word; }
+        .error { color: red; background-color: #ffdada !important; }
+        .success { color: #856404; background-color: #fff3cd !important; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <p> <a href=index.html> Consultar</a> , <a href=adicionar.html> Adicionar</a></p>
+    <h1>Remover CID</h1>
+    <p style="font-size: 12px; color: #666;">Atenção: Esta ação é permanente.</p>
+    
+    <div class="form-group">
+        <label for="cid">Código CID:</label>
+        <input type="text" id="cid" placeholder="Ex: A00">
+    </div>
+
+    <div class="form-group">
+        <label for="language">Linguagem:</label>
+        <select id="language">
+            <option value="pt-br">Português (pt-br)</option>
+            <option value="en-us">Inglês (en-us)</option>
+            <option value="es-es">Espanhol (es-es)</option>
+        </select>
+    </div>
+
+    <button onclick="deletarCID()">Excluir Registro</button>
+    <div id="resultado">Aguardando comando...</div>
+</div>
+
+<script>
+    async function deletarCID() {
+        if (!confirm("Tem certeza que deseja excluir este registro?")) return;
+
+        const cod_cid = document.getElementById('cid').value.toUpperCase();
+        const language = document.getElementById('language').value;
+        const divResultado = document.getElementById('resultado');
+
+        divResultado.innerText = "Deletando...";
+        divResultado.className = "";
+
+        try {
+            const response = await fetch('http://localhost:5000/api/cid', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ cod_cid, language })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                divResultado.classList.add('success');
+                divResultado.innerText = data.message;
+            } else {
+                divResultado.classList.add('error');
+                divResultado.innerText = data.error;
+            }
+        } catch (error) {
+            divResultado.classList.add('error');
+            divResultado.innerText = "Erro ao conectar com a API.";
+        }
+    }
+</script>
+</body>
+</html>
